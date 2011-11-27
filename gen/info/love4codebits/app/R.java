@@ -23,8 +23,8 @@ public final class R {
         public static final int cbRemember=0x7f050008;
         public static final int etE_mail=0x7f050005;
         public static final int etPassword=0x7f050007;
-        public static final int imageView1=0x7f050000;
         public static final int ivAvatar=0x7f05000b;
+        public static final int ivPreview=0x7f050000;
         public static final int linearLayout1=0x7f050002;
         public static final int progressBar1=0x7f05000a;
         public static final int textView1=0x7f050001;
@@ -39,8 +39,7 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f040001;
-        public static final int e_mail=0x7f040002;
         public static final int hello=0x7f040000;
-        public static final int password=0x7f040003;
+        public static final int uri=0x7f040002;
     }
 }

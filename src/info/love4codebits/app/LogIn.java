@@ -101,13 +101,14 @@ public class LogIn extends Activity implements OnClickListener {
 	}
 	return builder.toString();
 }
-    private void SavePreferences(String key, String value){
+    public void SavePreferences(String key, String value){
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, value);
         editor.commit();
-    }
-    private String LoadPreferences(String key){
+        }
+  
+    public String LoadPreferences(String key){
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         return (sharedPreferences.getString(key, ""));
     }

@@ -6,14 +6,15 @@ import java.net.URL;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class Main extends Activity implements OnClickListener{
@@ -21,7 +22,7 @@ public class Main extends Activity implements OnClickListener{
 	TextView tv1;
 	ImageView iv1;
 	Button btn1;
-	private static final int CAMERA_PIC_REQUEST = 4146;
+	Uri outputfileuri;
 	
 	 public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
@@ -38,24 +39,34 @@ public class Main extends Activity implements OnClickListener{
 	        
 	 }
 	public void onClick (View v){
-		 Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		 startActivityForResult(i, CAMERA_PIC_REQUEST);
+		 switch(v.getId())
+		 {
+		  case R.id.btnCam: 
+			  Toast.makeText(this, "entrou", 9999999).show();
+			  SavePreferences("picmode", "cam");break;
+		  case R.id.btnChoose:
+			  SavePreferences("picmode", "choose");break;
+		 }
 		 
+		 Intent i = new Intent(Main.this, ImagePreview.class);
+		 startActivity(i);
 		 
+				 
 	 }
-	 protected void onActivityResult(int requestCode, int resultCode, Intent data) {  
-		    if (requestCode == CAMERA_PIC_REQUEST) {  
-		    	Bitmap thumbnail = (Bitmap) data.getExtras().get("data");  
-		    	
-		    	iv1.setImageBitmap(thumbnail);   
-		    }  
-		}  
+	
+		 
 	 
 	 private String LoadPreferences(String key){
-	        SharedPreferences sharedPreferences = getSharedPreferences("LogIn",MODE_PRIVATE);
+	        SharedPreferences sharedPreferences = getSharedPreferences("LogIn", MODE_PRIVATE);
 	        return (sharedPreferences.getString(key, ""));
 	        
 	 }
+	 public void SavePreferences(String key, String value){
+	        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+	        SharedPreferences.Editor editor = sharedPreferences.edit();
+	        editor.putString(key, value);
+	        editor.commit();
+	        }
 	 
 	 public static Drawable LoadAvatar(String url) {
 		    try {

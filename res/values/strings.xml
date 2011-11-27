@@ -3,6 +3,5 @@
 
     <string name="hello">Hello World, Love4CodebitsActivity!</string>
     <string name="app_name">Love4Codebits</string>
-	<string name="e_mail"></string>
-	<string name="password"></string>
+	<string name="uri">ImagePreviewUri</string> 
 </resources>
