@@ -44,7 +44,6 @@ public class Main extends Activity implements OnClickListener{
 		 switch(v.getId())
 		 {
 		  case R.id.btnCam: 
-			  Toast.makeText(this, "entrou", 9999999).show();
 			  SavePreferences("picmode", "cam");break;
 		  case R.id.btnChoose:
 			  SavePreferences("picmode", "choose");break;
