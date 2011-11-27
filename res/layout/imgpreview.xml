@@ -31,7 +31,7 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/btnYes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -41,7 +41,7 @@
             android:text="Hell yeah!" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/btnNo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

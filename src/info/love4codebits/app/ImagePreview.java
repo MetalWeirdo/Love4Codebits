@@ -20,7 +20,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 public class ImagePreview extends Activity implements OnClickListener{
-	Button bnt1;
+	Button btn1;
+	Button btn2;
 	ImageView iv1;
 	Bitmap pic;
 	private Uri mImageUri = null;
@@ -38,12 +39,24 @@ public class ImagePreview extends Activity implements OnClickListener{
 	      else if (picmode == "choose"){
 	    	 gallery();
 	      }
-	    
+	      btn1 = (Button) findViewById(R.id.btnYes);
+	      btn2 = (Button) findViewById(R.id.btnNo);
+	      btn1.setOnClickListener(this);
+	      btn2.setOnClickListener(this);
 	}
 	
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
+		switch (v.getId()){
+		case R.id.btnYes:
+			//code for sendind the image to posterous
+			break;
+		case R.id.btnNo:
+			finish();
+			break;
+		}
+		
 		
 	}
 	@Override
