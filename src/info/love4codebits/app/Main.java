@@ -22,6 +22,7 @@ public class Main extends Activity implements OnClickListener{
 	TextView tv1;
 	ImageView iv1;
 	Button btn1;
+	Button btn2;
 	Uri outputfileuri;
 	
 	 public void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,8 @@ public class Main extends Activity implements OnClickListener{
 	        tv1.setText(LoadPreferences("name"));
 	        btn1 = (Button) findViewById(R.id.btnCam);
 	        btn1.setOnClickListener(this);
-	        
+	        btn2 = (Button) findViewById(R.id.btnChoose);
+	        btn2.setOnClickListener(this);
 	        
 	 }
 	public void onClick (View v){
