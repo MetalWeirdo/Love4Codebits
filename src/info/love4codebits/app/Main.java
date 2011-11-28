@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 public class Main extends Activity implements OnClickListener{
 	
+	
 	TextView tv1;
 	ImageView iv1;
 	Button btn1;
@@ -27,6 +28,7 @@ public class Main extends Activity implements OnClickListener{
 	 public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.main);
+	        /** set the objects **/
 	        iv1 = (ImageView) findViewById(R.id.ivAvatar);
 	        iv1.setImageDrawable((LoadAvatar(LoadPreferences("avatar"))));
 	        tv1 = (TextView) findViewById(R.id.tvNickname);
@@ -40,7 +42,8 @@ public class Main extends Activity implements OnClickListener{
 	        
 	 }
 	public void onClick (View v){
-		 switch(v.getId())
+		/** Set the image pick mode **/ 
+		switch(v.getId())
 		 {
 		  case R.id.btnCam: 
 			  SavePreferences("picmode", "cam");break;
@@ -55,7 +58,7 @@ public class Main extends Activity implements OnClickListener{
 	 }
 	
 		 
-	 
+	/** Load/Save of SharedPreferences, will change this to a single class **/
 	 private String LoadPreferences(String key){
 	        SharedPreferences sharedPreferences = getSharedPreferences("LogIn", MODE_PRIVATE);
 	        return (sharedPreferences.getString(key, ""));
@@ -67,7 +70,7 @@ public class Main extends Activity implements OnClickListener{
 	        editor.putString(key, value);
 	        editor.commit();
 	        }
-	 
+	 /** Getting the user's avatar to a drawable, this will probably bee removed to get the avatar via URI**/
 	 public static Drawable LoadAvatar(String url) {
 		    try {
 		        InputStream is = (InputStream) new URL(url).getContent();

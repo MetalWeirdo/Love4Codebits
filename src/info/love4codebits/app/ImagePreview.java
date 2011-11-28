@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class ImagePreview extends Activity implements OnClickListener{
 	Button btn1;
@@ -27,30 +26,33 @@ public class ImagePreview extends Activity implements OnClickListener{
 	private Uri mImageUri = null;
 	File photo;
 	private String selectedImagePath;
+	
 	public void onCreate(Bundle savedInstanceState) {
-		  super.onCreate(savedInstanceState);
-		  setContentView(R.layout.imgpreview);
-		  iv1 = (ImageView) findViewById(R.id.ivPreview);		  
-		  String picmode = LoadPreferences("picmode");
-	      if (picmode.equalsIgnoreCase("cam")){
-	    	  cam();
-	    	     	  
-	      }
-	      else if (picmode == "choose"){
-	    	 gallery();
-	      }
-	      btn1 = (Button) findViewById(R.id.btnYes);
-	      btn2 = (Button) findViewById(R.id.btnNo);
-	      btn1.setOnClickListener(this);
-	      btn2.setOnClickListener(this);
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.imgpreview);
+		iv1 = (ImageView) findViewById(R.id.ivPreview);
+		
+		/** Getting the selected mode for image picking **/
+		
+		String picmode = LoadPreferences("picmode");
+		if (picmode.equalsIgnoreCase("cam")) {
+			cam();
+		} else if (picmode == "choose") {
+			gallery();
+		}
+	
+		btn1 = (Button) findViewById(R.id.btnYes);
+		btn2 = (Button) findViewById(R.id.btnNo);
+		btn1.setOnClickListener(this);
+		btn2.setOnClickListener(this);
 	}
 	
 	@Override
 	public void onClick(View v) {
-		// TODO Auto-generated method stub
-		switch (v.getId()){
+		/** User confirms if that's the image they want to send to the love4codebits posterous**/
+		switch (v.getId()) {
 		case R.id.btnYes:
-			//code for sendind the image to posterous
+			/**Insert code for image uploading to posterous, and set the tag of the post with user's twitter name**/
 			break;
 		case R.id.btnNo:
 			finish();
@@ -62,7 +64,9 @@ public class ImagePreview extends Activity implements OnClickListener{
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
+		/** Identify the ActivityResult if it's the Cam Result or the Gallery Result**/
 		 switch(requestCode){
+		 /**CAM**/
 		 case 0:
 			 if(resultCode == RESULT_OK){
 				 if (intent == null) {    
@@ -73,8 +77,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 			 else if (resultCode == RESULT_CANCELED){
 				 finish();
 			 }
-				 
-		
+		 /**GALLERY**/
 		 case 100:
 			 if(resultCode == RESULT_OK){  
 				Uri selectedImageUri = intent.getData();
@@ -94,12 +97,13 @@ public class ImagePreview extends Activity implements OnClickListener{
 		    // Check if the result includes a thumbnail Bitmap
 		    
 		  }
-	
+	/**Intent for image picking with the Gallery**/
 	private void gallery(){
 		 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
   		 intent.setType("image/*");
   		 startActivityForResult(intent, 100);
 	}
+	/**Intent for taking a photo with the Cam**/
 	private void cam(){
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		File file = new File(Environment.getExternalStorageDirectory(),"test.jpg");
@@ -107,6 +111,8 @@ public class ImagePreview extends Activity implements OnClickListener{
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 		startActivityForResult(intent, 0);
 	}
+	
+	/**Function taken from the interwebz to decode a URI and return a bitmap**/
 	
 	private Bitmap decodeUri(Uri selectedImage) throws FileNotFoundException {
 
@@ -137,22 +143,17 @@ public class ImagePreview extends Activity implements OnClickListener{
         return BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o2);
 
     }
+	
 	public String getPath(Uri uri) {
-				
-				String[] projection = { MediaStore.Images.Media.DATA };
-				
-				Cursor cursor = managedQuery(uri, projection, null, null, null);
-				
-				int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-				
-				cursor.moveToFirst();
-				
-				return cursor.getString(column_index);
-
-		    }
+		String[] projection = { MediaStore.Images.Media.DATA };
+		Cursor cursor = managedQuery(uri, projection, null, null, null);
+		int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+		cursor.moveToFirst();
+		return cursor.getString(column_index);
+	    }
 	
 	  
-	  
+	/** Load/Save of SharedPreferences, will change this to a single class **/
 
 	private String LoadPreferences(String key){
         SharedPreferences sharedPreferences = getSharedPreferences("Main",MODE_PRIVATE);

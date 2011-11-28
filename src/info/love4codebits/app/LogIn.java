@@ -41,7 +41,7 @@ public class LogIn extends Activity implements OnClickListener {
         setContentView(R.layout.login);
         login = (Button) findViewById(R.id.btnLogin);
         login.setOnClickListener(this);
-            
+        /** Check if the checkbox "remember me" was ticked to make a auto-login**/
         if(LoadPreferences("autologin")!="")
         {
         	if ( login()){
@@ -53,17 +53,28 @@ public class LogIn extends Activity implements OnClickListener {
     }
     
     public void onClick(View v){
+    	
+    	/** Changing the visiblity of the button to false and show the progress bar **/
     	ProgressBar pg = (ProgressBar) findViewById(R.id.progressBar1);
     	login.setVisibility(View.GONE);
     	pg.setVisibility(View.VISIBLE);
     	cb = (CheckBox) findViewById(R.id.cbRemember);
+    	
+    	/** Saving the e-mail and password to SharedPreferences**/
+
     	etText = (EditText) findViewById(R.id.etE_mail);
     	SavePreferences("mail",etText.getText().toString() );
     	etText = (EditText) findViewById(R.id.etPassword);
     	SavePreferences("password",  etText.getText().toString());
+    	
+    	/** Setting the auto-login to "true" if checkbox is ticked **/
+    	
     	if (cb.isChecked()){
     		SavePreferences("autologin", "true");
     	}
+    	
+    	/** Login to Codebits **/
+    	
     	if (login()){
     		proccedtoMain();
     	}
@@ -74,33 +85,39 @@ public class LogIn extends Activity implements OnClickListener {
     		
     		
     }
+    
+    /** Get the JSON file**/
+    
     public String getJSON(String rurl){	
-	StringBuilder builder = new StringBuilder();
-	HttpClient client = new DefaultHttpClient();
-	HttpGet httpGet = new HttpGet( APIurl + rurl);
-	try {
-		HttpResponse response = client.execute(httpGet);
-		StatusLine statusLine = response.getStatusLine();
-		int statusCode = statusLine.getStatusCode();
-		if (statusCode == 200) {
-			HttpEntity entity = response.getEntity();
-			InputStream content = entity.getContent();
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(content));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				builder.append(line);
+		StringBuilder builder = new StringBuilder();
+		HttpClient client = new DefaultHttpClient();
+		HttpGet httpGet = new HttpGet(APIurl + rurl);
+		try {
+			HttpResponse response = client.execute(httpGet);
+			StatusLine statusLine = response.getStatusLine();
+			int statusCode = statusLine.getStatusCode();
+			if (statusCode == 200) {
+				HttpEntity entity = response.getEntity();
+				InputStream content = entity.getContent();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(content));
+				String line;
+				while ((line = reader.readLine()) != null) {
+					builder.append(line);
+				}
+			} else {
+
 			}
-		} else {
-			
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-	} catch (ClientProtocolException e) {
-		e.printStackTrace();
-	} catch (IOException e) {
-		e.printStackTrace();
+		return builder.toString();
 	}
-	return builder.toString();
-}
+    
+    /** Load/Save of SharedPreferences, will change this to a single class **/
+    
     public void SavePreferences(String key, String value){
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -112,25 +129,29 @@ public class LogIn extends Activity implements OnClickListener {
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         return (sharedPreferences.getString(key, ""));
     }
+    
+    /** Function to get the Codebits Token to use on Login **/
+    
     private boolean getToken(){
-    	try {
-			jObject = new JSONObject(getJSON("/gettoken?user=" + LoadPreferences("mail") + "&password="+ LoadPreferences("password")));
-			SavePreferences("uid",jObject.getString("uid"));
+		try {
+			jObject = new JSONObject(getJSON("/gettoken?user="
+					+ LoadPreferences("mail") + "&password="
+					+ LoadPreferences("password")));
+			SavePreferences("uid", jObject.getString("uid"));
 			SavePreferences("token", jObject.getString("token"));
 			return true;
-		//	}
-			} catch (JSONException e) {
-				Toast.makeText(this, "Codebits said noo!", 9999999).show();
-				return false;
+		} catch (JSONException e) {
+			Toast.makeText(this, "Codebits said noo!", 9999999).show();
+			return false;
 		}
-	
-		
-    }
+	}
     
-    private boolean getUserInfo(){
-    	
-    	try {
-			jObject = new JSONObject(getJSON("/user/" + LoadPreferences("uid") + "?token=" + LoadPreferences("token")));
+    /** Function to get the User Info (nickname,real name, twitter, avatar,etc...) after getting the token **/
+    
+	private boolean getUserInfo() {
+		try {
+			jObject = new JSONObject(getJSON("/user/" + LoadPreferences("uid")
+					+ "?token=" + LoadPreferences("token")));
 			SavePreferences("nick", jObject.getString("nick"));
 			SavePreferences("avatar", jObject.getString("avatar"));
 			SavePreferences("twitter", jObject.getString("twitter"));
@@ -141,26 +162,27 @@ public class LogIn extends Activity implements OnClickListener {
 			e.printStackTrace();
 			return false;
 		}
-		
-    
-    }
-    private void proccedtoMain(){
-    	Intent i = new Intent(LogIn.this,Main.class);
-    	startActivityForResult(i, 0);
-    	finish();
-    }
-    private boolean login() {
-    	if (getToken()){
-			if (getUserInfo()){
+	}
 
-    			return true;
-    		}
-    		else
-    			return false;
-    	}
-    	else
-    		return false;
-    }
+	/** Function to proceed to the Main view after login in and get the user's info **/
+	
+	private void proccedtoMain() {
+		Intent i = new Intent(LogIn.this, Main.class);
+		startActivityForResult(i, 0);
+		finish();
+	}
+	
+	/** Function to call when you want to login. It calls the getToken and getUserInfo **/
+	
+    private boolean login() {
+		if (getToken()) {
+			if (getUserInfo()) {
+				return true;
+			} else
+				return false;
+		} else
+			return false;
+	}
  }
 
        
