@@ -57,14 +57,14 @@ public class Main extends Activity implements OnClickListener{
 	     switch (item.getItemId()) {
 	     case R.id.about:
 	         /** about me and love4codebits **/
-	     case R.id.logout:
+	    	 return true;
+		case R.id.logout:
 	         ClearPreferences();
 	         Intent i = new Intent(Main.this, LogIn.class);
  			 startActivityForResult(i, 0);
-	 		 finish();
-	     default:
-	         return super.onOptionsItemSelected(item);
+	 		 finish();	 		 
 	     }
+	     return true;
 	 }
 	public void onClick (View v){
 		/** Set the image pick mode **/ 
