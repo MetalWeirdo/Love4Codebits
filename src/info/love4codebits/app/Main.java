@@ -9,6 +9,9 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -41,6 +44,28 @@ public class Main extends Activity implements OnClickListener{
 	        btn2.setOnClickListener(this);
 	        
 	 }
+	 
+	 @Override
+	 public boolean onCreateOptionsMenu(Menu menu) {
+	     MenuInflater inflater = getMenuInflater();
+	     inflater.inflate(R.menu.menu, menu);
+	     return true;
+	 }
+	 @Override
+	 public boolean onOptionsItemSelected(MenuItem item) {
+	     // Handle item selection
+	     switch (item.getItemId()) {
+	     case R.id.about:
+	         /** about me and love4codebits **/
+	     case R.id.logout:
+	         ClearPreferences();
+	         Intent i = new Intent(Main.this, LogIn.class);
+ 			 startActivityForResult(i, 0);
+	 		 finish();
+	     default:
+	         return super.onOptionsItemSelected(item);
+	     }
+	 }
 	public void onClick (View v){
 		/** Set the image pick mode **/ 
 		switch(v.getId())
@@ -70,6 +95,12 @@ public class Main extends Activity implements OnClickListener{
 	        editor.putString(key, value);
 	        editor.commit();
 	        }
+	 public void ClearPreferences (){
+		  SharedPreferences sharedPreferences = getSharedPreferences("LogIn", MODE_PRIVATE);
+	        SharedPreferences.Editor editor = sharedPreferences.edit();
+	        editor.clear();
+	        editor.commit();
+	 }
 	 /** Getting the user's avatar to a drawable, this will probably bee removed to get the avatar via URI**/
 	 public static Drawable LoadAvatar(String url) {
 		    try {

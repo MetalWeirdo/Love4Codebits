@@ -14,6 +14,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -32,13 +35,16 @@ public class LogIn extends Activity implements OnClickListener {
     /** Called when the activity is first created. */
 	String APIurl = "https://services.sapo.pt/Codebits";
     JSONObject jObject;
-    EditText etText ;
+    EditText etMail;
+    EditText etPass;
     Button login;
     CheckBox cb;
     @Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+        ProgressDialog dialog;
+        
         login = (Button) findViewById(R.id.btnLogin);
         login.setOnClickListener(this);
         /** Check if the checkbox "remember me" was ticked to make a auto-login**/
@@ -53,37 +59,54 @@ public class LogIn extends Activity implements OnClickListener {
     }
     
     public void onClick(View v){
-    	
-    	/** Changing the visiblity of the button to false and show the progress bar **/
-    	ProgressBar pg = (ProgressBar) findViewById(R.id.progressBar1);
-    	login.setVisibility(View.GONE);
-    	pg.setVisibility(View.VISIBLE);
     	cb = (CheckBox) findViewById(R.id.cbRemember);
-    	
-    	/** Saving the e-mail and password to SharedPreferences**/
-
-    	etText = (EditText) findViewById(R.id.etE_mail);
-    	SavePreferences("mail",etText.getText().toString() );
-    	etText = (EditText) findViewById(R.id.etPassword);
-    	SavePreferences("password",  etText.getText().toString());
-    	
-    	/** Setting the auto-login to "true" if checkbox is ticked **/
-    	
-    	if (cb.isChecked()){
-    		SavePreferences("autologin", "true");
-    	}
-    	
-    	/** Login to Codebits **/
-    	
-    	if (login()){
-    		proccedtoMain();
+    	etMail = (EditText) findViewById(R.id.etE_mail);    	
+    	etPass = (EditText) findViewById(R.id.etPassword);
+    	Toast.makeText(this, etMail.getText().toString(), Toast.LENGTH_LONG).show();
+    	if (etMail.getText().toString().length() !=0 || etPass.getText().toString().length() !=0){
+    	 	
+    		/** Testing the progress dialog **/        	
+        	
+    		ProgressDialog.show(LogIn.this, "","Signing you to Codebits! :D", true);
+    		
+        	/** Saving the e-mail and password to SharedPreferences**/
+        	
+    		SavePreferences("mail",etMail.getText().toString() );
+        	SavePreferences("password",  etPass.getText().toString());
+        	
+        	/** Setting the auto-login to "true" if checkbox is ticked **/
+        	
+        	if (cb.isChecked()){
+        		SavePreferences("autologin", "true");
+        	}
+        	
+        	/** Login to Codebits **/
+        	
+        	if (login()){
+        		proccedtoMain();
+        	}
+          		
+        	
     	}
     	else{
-    		login.setVisibility(View.VISIBLE);
-        	pg.setVisibility(View.GONE);
+    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    		builder.setMessage("Both the email and the password fields should be != null , you know that!")
+    		       .setCancelable(false)
+    		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+    		           public void onClick(DialogInterface dialog, int id) {
+    		        	   dialog.cancel();
+    		           }
+    		       });
+    		AlertDialog alert = builder.create();
+    		alert.show();
     	}
-    		
-    		
+   
+    	
+    	
+
+    	
+    	
+    	
     }
     
     /** Get the JSON file**/
