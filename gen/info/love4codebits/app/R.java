@@ -19,7 +19,8 @@ public final class R {
         public static final int logo=0x7f020005;
     }
     public static final class id {
-        public static final int about=0x7f060012;
+        public static final int about=0x7f060013;
+        public static final int adView=0x7f060011;
         public static final int btnCam=0x7f06000f;
         public static final int btnChoose=0x7f060010;
         public static final int btnLogin=0x7f06000a;
@@ -28,12 +29,12 @@ public final class R {
         public static final int cbRemember=0x7f060009;
         public static final int etE_mail=0x7f060006;
         public static final int etPassword=0x7f060008;
-        public static final int group1=0x7f060011;
+        public static final int group1=0x7f060012;
         public static final int imageView1=0x7f060005;
         public static final int ivAvatar=0x7f06000c;
         public static final int ivPreview=0x7f060000;
         public static final int linearLayout1=0x7f060002;
-        public static final int logout=0x7f060013;
+        public static final int logout=0x7f060014;
         public static final int progressBar1=0x7f06000b;
         public static final int textView1=0x7f060001;
         public static final int textView2=0x7f060007;

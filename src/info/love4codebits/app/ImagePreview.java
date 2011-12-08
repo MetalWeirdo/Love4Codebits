@@ -1,7 +1,23 @@
 package info.love4codebits.app;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,8 +33,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class ImagePreview extends Activity implements OnClickListener{
+	static HttpClient client = new DefaultHttpClient();
+	static HttpPost post = new HttpPost("http://love4codebits.info/rest.php");
+	static String urlt = "http://love4codebits.info/rest.php";
+	static String token;
 	Button btn1;
 	Button btn2;
 	ImageView iv1;
@@ -52,7 +73,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 		/** User confirms if that's the image they want to send to the love4codebits posterous**/
 		switch (v.getId()) {
 		case R.id.btnYes:
-			/**Insert code for image uploading to posterous, and set the tag of the post with user's twitter name**/
+			
 			break;
 		case R.id.btnNo:
 			finish();
@@ -160,5 +181,46 @@ public class ImagePreview extends Activity implements OnClickListener{
         return (sharedPreferences.getString(key, ""));
         
  }
+	public void getAPIToken (){
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		 pairs.add(new BasicNameValuePair("API", "GTKN"));
+		try {
+			postdata(pairs);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+			
+		
+	}
+
+	 public static void postdata(List<NameValuePair> pairs) throws UnsupportedEncodingException{
+		 post.setEntity(new UrlEncodedFormEntity(pairs));
+	 }
+	 public String getResponse(){
+		 	
+			try {
+				HttpResponse response = client.execute(post);
+				InputStream in = response.getEntity().getContent();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+				StringBuilder str = new StringBuilder();
+				String line = null;
+				while((line = reader.readLine()) != null)
+				{
+				    str.append(line);
+				}
+				in.close();
+				return str.toString();
+					
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return "";
+			
+	 }
 
 }
