@@ -33,7 +33,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class ImagePreview extends Activity implements OnClickListener{
 	static HttpClient client = new DefaultHttpClient();
@@ -73,6 +72,10 @@ public class ImagePreview extends Activity implements OnClickListener{
 		/** User confirms if that's the image they want to send to the love4codebits posterous**/
 		switch (v.getId()) {
 		case R.id.btnYes:
+			getAPIToken();
+			if (getResponse()!=""){
+				sendPic();
+			}
 			
 			break;
 		case R.id.btnNo:
@@ -85,9 +88,9 @@ public class ImagePreview extends Activity implements OnClickListener{
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent)
 	{
-		/** Identify the ActivityResult if it's the Cam Result or the Gallery Result**/
+		//Identify the ActivityResult if it's the Cam Result or the Gallery Result
 		 switch(requestCode){
-		 /**CAM**/
+		 //CAM
 		 case 0:
 			 if(resultCode == RESULT_OK){
 				 if (intent == null) {    
@@ -118,13 +121,13 @@ public class ImagePreview extends Activity implements OnClickListener{
 		    // Check if the result includes a thumbnail Bitmap
 		    
 		  }
-	/**Intent for image picking with the Gallery**/
+	//Intent for image picking with the Gallery
 	private void gallery(){
 		 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
   		 intent.setType("image/*");
   		 startActivityForResult(intent, 100);
 	}
-	/**Intent for taking a photo with the Cam**/
+	//Intent for taking a photo with the Cam
 	private void cam(){
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		File file = new File(Environment.getExternalStorageDirectory(),"test.jpg");
@@ -133,7 +136,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 		startActivityForResult(intent, 0);
 	}
 	
-	/**Function taken from the interwebz to decode a URI and return a bitmap**/
+	//Function taken from the interwebz to decode a URI and return a bitmap
 	
 	private Bitmap decodeUri(Uri selectedImage) throws FileNotFoundException {
 
@@ -143,7 +146,7 @@ public class ImagePreview extends Activity implements OnClickListener{
         BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o);
 
         // The new size we want to scale to
-        final int REQUIRED_SIZE = 180;
+        final int REQUIRED_SIZE = 521;
 
         // Find the correct scale value. It should be the power of 2.
         int width_tmp = o.outWidth, height_tmp = o.outHeight;
@@ -174,7 +177,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 	    }
 	
 	  
-	/** Load/Save of SharedPreferences, will change this to a single class **/
+	// Load/Save of SharedPreferences, will change this to a single class
 
 	private String LoadPreferences(String key){
         SharedPreferences sharedPreferences = getSharedPreferences("Main",MODE_PRIVATE);
@@ -184,6 +187,22 @@ public class ImagePreview extends Activity implements OnClickListener{
 	public void getAPIToken (){
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 		 pairs.add(new BasicNameValuePair("API", "GTKN"));
+		try {
+			postdata(pairs);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+			
+		
+	}
+	public void sendPic (){
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		 pairs.add(new BasicNameValuePair("API", "L4CM"));
+		 pairs.add(new BasicNameValuePair("TKN",token));
+		 pairs.add(new BasicNameValuePair("NAM","\"" + LoadPreferences("name") + "\""));
+		 pairs.add(new BasicNameValuePair("TWT",LoadPreferences("twitter")));
+		 pairs.add(new BasicNameValuePair("FILE","file"));
 		try {
 			postdata(pairs);
 		} catch (UnsupportedEncodingException e) {
