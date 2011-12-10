@@ -47,6 +47,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ImagePreview extends Activity implements OnClickListener{
@@ -110,7 +111,12 @@ public class ImagePreview extends Activity implements OnClickListener{
 		 case 0:
 			 if(resultCode == RESULT_OK){
 				 if (intent == null) {    
-				    	iv1.setImageURI(mImageUri);
+				    	try {
+							iv1.setImageBitmap(decodeUri(mImageUri));
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 				    	selectedImagePath = mImageUri.getPath();
 				    }
 				 break;
@@ -162,7 +168,7 @@ public class ImagePreview extends Activity implements OnClickListener{
         BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImage), null, o);
 
         // The new size we want to scale to
-        final int REQUIRED_SIZE = 521;
+        final int REQUIRED_SIZE = 200;
 
         // Find the correct scale value. It should be the power of 2.
         int width_tmp = o.outWidth, height_tmp = o.outHeight;
@@ -206,6 +212,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 		try {
 			Toast.makeText(this, "Getting token...", 9999999).show();
 			postdata(pairs);
+			
 		} catch (UnsupportedEncodingException e) {
 			Toast.makeText(this, "Failed to get token...", 9999999).show();
 			// TODO Auto-generated catch block
@@ -215,18 +222,22 @@ public class ImagePreview extends Activity implements OnClickListener{
 		
 	}
 	public void sendPic (){
+		SharedPreferences sharedPreferences = getSharedPreferences("LogIn",MODE_PRIVATE);
 		    try {
 		    	Toast.makeText(this, "Starting to send pic...", 9999999).show();
 			 	File f = new File(selectedImagePath);
 			    MultipartEntity entity = new MultipartEntity();
 			    entity.addPart("API", new StringBody("L4CM"));
 			    entity.addPart("TKN",new StringBody(token));
-			    entity.addPart("NAM",new StringBody("\"" + LoadPreferences("name") + "\""));
-			    entity.addPart("TWT",new StringBody(LoadPreferences("twitter")));
+			    Toast.makeText(this, sharedPreferences.getString("name", ""), 9999999).show();
+			    entity.addPart("NAM",new StringBody("\"" + sharedPreferences.getString("name", "") + "\""));
+			    Toast.makeText(this, sharedPreferences.getString("twitter", ""), 9999999).show();
+			    entity.addPart("TWT",new StringBody(sharedPreferences.getString("twitter", "")));
 			    entity.addPart("FILE", new FileBody(f));		
 			    Toast.makeText(this, "Added the parameters to send pic", 9999999).show();
 				post.setEntity(entity);
-				Toast.makeText(this, getResponse(), 9999999).show();
+				String text = getResponse();
+				Toast.makeText(this, text, Toast.LENGTH_LONG).show();
 		    } catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
