@@ -36,109 +36,102 @@ import org.json.JSONObject;
 
 @SuppressWarnings("unused")
 public class LogIn extends Activity implements OnClickListener {
-    /** Called when the activity is first created. */
+	/** Called when the activity is first created. */
 	String APIurl = "https://services.sapo.pt/Codebits";
-    JSONObject jObject;
-    EditText etMail;
-    EditText etPass;
-    Button login;
-    CheckBox cb;
-    
-    @Override
+	JSONObject jObject;
+	EditText etMail;
+	EditText etPass;
+	Button login;
+	CheckBox cb;
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
-        login = (Button) findViewById(R.id.btnLogin);
-        login.setOnClickListener(this);
-        /** Check if the checkbox "remember me" was ticked to make a auto-login**/
-        if(LoadPreferences("autologin")!="")
-        {
-        	if ( login()){
-        		proccedtoMain();
-        	}
-        	else
-        		Toast.makeText(this, "Something went wrong :|", Toast.LENGTH_LONG).show();
-        }	
-    }
-    
-    
-	public void onClick(View v){
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.login);
+		login = (Button) findViewById(R.id.btnLogin);
+		login.setOnClickListener(this);
+		/** Check if the checkbox "remember me" was ticked to make a auto-login **/
+		if (LoadPreferences("autologin") != "") {
+			if (login()) {
+				proccedtoMain();
+			} else
+				Toast.makeText(this, "Something went wrong :|",
+						Toast.LENGTH_LONG).show();
+		}
+	}
+
+	public void onClick(View v) {
 		ProgressDialog progressDialog;
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressDialog.setMessage("Signing you to Codebits! :D");
-		
+
 		cb = (CheckBox) findViewById(R.id.cbRemember);
-    	etMail = (EditText) findViewById(R.id.etE_mail);    	
-    	etPass = (EditText) findViewById(R.id.etPassword);
-    	if (etMail.getText().toString().length() !=0 || etPass.getText().toString().length() !=0)
-    	{
-    	 	if (isOnline()){
-    	 		/** Testing the progress dialog **/        	
-            	
-        		progressDialog.show();
-        		
-            	/** Saving the e-mail and password to SharedPreferences**/
-            	
-        		SavePreferences("mail",etMail.getText().toString() );
-            	SavePreferences("password",  etPass.getText().toString());
-            	
-            	/** Setting the auto-login to "true" if checkbox is ticked **/
-            	
-            	if (cb.isChecked()){
-            		SavePreferences("autologin", "true");
-            	}
-            	
-            	/** Login to Codebits **/
-            	
-            	if (login()){
-            		proccedtoMain();
-            	}
-            	else{
-            		progressDialog.dismiss();
-            	}
-    	 	}	
-        	else
-        	{
-            		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            		builder.setMessage("You're not connected to the internet! You need that! You know you need that!")
-            		       .setCancelable(false)
-            		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            		           public void onClick(DialogInterface dialog, int id) {
-            		        	   dialog.cancel();
-            		           }
-            		       });
-            		AlertDialog alert = builder.create();
-            		alert.show();
+		etMail = (EditText) findViewById(R.id.etE_mail);
+		etPass = (EditText) findViewById(R.id.etPassword);
+		if (etMail.getText().toString().length() != 0
+				|| etPass.getText().toString().length() != 0) {
+			if (isOnline()) {
+				/** Testing the progress dialog **/
 
-        	}
-    	
-        	
-    	}
-    	else{
-    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    		builder.setMessage("Both the email and the password fields should be != null , you know that!")
-    		       .setCancelable(false)
-    		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-    		           public void onClick(DialogInterface dialog, int id) {
-    		        	   dialog.cancel();
-    		           }
-    		       });
-    		AlertDialog alert = builder.create();
-    		alert.show();
-    	}
-   
-    	
-    	
+				progressDialog.show();
 
-    	
-    	
-    	
-    }
-    
-    /** Get the JSON file**/
-    
-    public String getJSON(String rurl){	
+				/** Saving the e-mail and password to SharedPreferences **/
+
+				SavePreferences("mail", etMail.getText().toString());
+				SavePreferences("password", etPass.getText().toString());
+
+				/** Setting the auto-login to "true" if checkbox is ticked **/
+
+				if (cb.isChecked()) {
+					SavePreferences("autologin", "true");
+				}
+
+				/** Login to Codebits **/
+
+				if (login()) {
+					proccedtoMain();
+				} else {
+					progressDialog.dismiss();
+				}
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setMessage(
+						"You're not connected to the internet! You need that! You know you need that!")
+						.setCancelable(false)
+						.setPositiveButton("Ok",
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int id) {
+										dialog.cancel();
+									}
+								});
+				AlertDialog alert = builder.create();
+				alert.show();
+
+			}
+
+		} else {
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage(
+					"Both the email and the password fields should be != null , you know that!")
+					.setCancelable(false)
+					.setPositiveButton("Ok",
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int id) {
+									dialog.cancel();
+								}
+							});
+			AlertDialog alert = builder.create();
+			alert.show();
+		}
+
+	}
+
+	/** Get the JSON file **/
+
+	public String getJSON(String rurl) {
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = new DefaultHttpClient();
 		HttpGet httpGet = new HttpGet(APIurl + rurl);
@@ -165,24 +158,24 @@ public class LogIn extends Activity implements OnClickListener {
 		}
 		return builder.toString();
 	}
-    
-    /** Load/Save of SharedPreferences, will change this to a single class **/
-    
-    public void SavePreferences(String key, String value){
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
-        editor.commit();
-        }
-  
-    public String LoadPreferences(String key){
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        return (sharedPreferences.getString(key, ""));
-    }
-    
-    /** Function to get the Codebits Token to use on Login **/
-    
-    private boolean getToken(){
+
+	/** Load/Save of SharedPreferences, will change this to a single class **/
+
+	public void SavePreferences(String key, String value) {
+		SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putString(key, value);
+		editor.commit();
+	}
+
+	public String LoadPreferences(String key) {
+		SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+		return (sharedPreferences.getString(key, ""));
+	}
+
+	/** Function to get the Codebits Token to use on Login **/
+
+	private boolean getToken() {
 		try {
 			jObject = new JSONObject(getJSON("/gettoken?user="
 					+ LoadPreferences("mail") + "&password="
@@ -195,9 +188,12 @@ public class LogIn extends Activity implements OnClickListener {
 			return false;
 		}
 	}
-    
-    /** Function to get the User Info (nickname,real name, twitter, avatar,etc...) after getting the token **/
-    
+
+	/**
+	 * Function to get the User Info (nickname,real name, twitter,
+	 * avatar,etc...) after getting the token
+	 **/
+
 	private boolean getUserInfo() {
 		try {
 			jObject = new JSONObject(getJSON("/user/" + LoadPreferences("uid")
@@ -214,17 +210,23 @@ public class LogIn extends Activity implements OnClickListener {
 		}
 	}
 
-	/** Function to proceed to the Main view after login in and get the user's info **/
-	
+	/**
+	 * Function to proceed to the Main view after login in and get the user's
+	 * info
+	 **/
+
 	private void proccedtoMain() {
 		Intent i = new Intent(LogIn.this, Main.class);
 		startActivityForResult(i, 0);
 		finish();
 	}
-	
-	/** Function to call when you want to login. It calls the getToken and getUserInfo **/
-	
-    private boolean login() {
+
+	/**
+	 * Function to call when you want to login. It calls the getToken and
+	 * getUserInfo
+	 **/
+
+	private boolean login() {
 		if (getToken()) {
 			if (getUserInfo()) {
 				return true;
@@ -233,16 +235,14 @@ public class LogIn extends Activity implements OnClickListener {
 		} else
 			return false;
 	}
-    
-    public boolean isOnline() {
-    	   ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-    	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-    	        return true;
-    	    }
-    	    return false;
 
-    	}
- }
+	public boolean isOnline() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
 
-       
+	}
+}
