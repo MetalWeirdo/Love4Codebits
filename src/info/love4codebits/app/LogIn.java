@@ -127,14 +127,7 @@ public class LogIn extends Activity implements OnClickListener {
     		AlertDialog alert = builder.create();
     		alert.show();
     	}
-   
-    	
-    	
-
-    	
-    	
-    	
-    }
+       }
     
     /** Get the JSON file**/
     

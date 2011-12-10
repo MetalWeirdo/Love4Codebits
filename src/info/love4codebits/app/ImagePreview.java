@@ -223,7 +223,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 			    entity.addPart("TKN",new StringBody(token));
 			    entity.addPart("NAM",new StringBody("\"" + LoadPreferences("name") + "\""));
 			    entity.addPart("TWT",new StringBody(LoadPreferences("twitter")));
-			    entity.addPart("FILE", new FileBody(f.getAbsoluteFile()));		
+			    entity.addPart("FILE", new FileBody(f));		
 			    Toast.makeText(this, "Added the parameters to send pic", 9999999).show();
 				post.setEntity(entity);
 				Toast.makeText(this, getResponse(), 9999999).show();
