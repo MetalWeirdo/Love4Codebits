@@ -1,30 +1,10 @@
 package info.love4codebits.app;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-
 import com.google.ads.*;
 import android.app.Activity;
 import android.content.Intent;
@@ -39,9 +19,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class Main extends Activity implements OnClickListener{
@@ -69,9 +47,7 @@ public class Main extends Activity implements OnClickListener{
 	        btn1.setOnClickListener(this);
 	        btn2 = (Button) findViewById(R.id.btnChoose);
 	        btn2.setOnClickListener(this);
-	     // Look up the AdView as a resource and load a request.
-	        AdView adView = (AdView)this.findViewById(R.id.adView);
-	        adView.loadAd(new AdRequest());
+	        
 	        
 	 }
 	 
