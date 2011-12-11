@@ -34,6 +34,8 @@ import org.apache.http.message.BasicNameValuePair;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -73,7 +75,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 		String picmode = LoadPreferences("picmode");
 		if (picmode.equalsIgnoreCase("cam")) {
 			cam();
-		} else if (picmode == "choose") {
+		} else{
 			gallery();
 		}
 	
@@ -91,7 +93,35 @@ public class ImagePreview extends Activity implements OnClickListener{
 			getAPIToken();
 			token=getResponse();
 			if (token!=""){
-				sendPic();
+				if (sendPic().equalsIgnoreCase("RESULT=0")){
+					//envio com sucesso
+					
+				}
+				else{
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	        		builder.setMessage("Something went wrong with the upload of your love :( ")
+	        		       .setCancelable(false)
+	        		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	        		           public void onClick(DialogInterface dialog, int id) {
+	        		        	   dialog.cancel();
+	        		           }
+	        		       });
+	        		AlertDialog alert = builder.create();
+	        		alert.show();
+				}
+					
+			}
+			else{
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        		builder.setMessage("There was a problem authenticating with the love4codebits API, try again later...")
+        		       .setCancelable(false)
+        		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        		           public void onClick(DialogInterface dialog, int id) {
+        		        	   dialog.cancel();
+        		           }
+        		       });
+        		AlertDialog alert = builder.create();
+        		alert.show();
 			}
 			
 			break;
@@ -221,7 +251,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 			
 		
 	}
-	public void sendPic (){
+	public String sendPic (){
 		SharedPreferences sharedPreferences = getSharedPreferences("LogIn",MODE_PRIVATE);
 		    try {
 		    	Toast.makeText(this, "Starting to send pic...", 9999999).show();
@@ -230,18 +260,19 @@ public class ImagePreview extends Activity implements OnClickListener{
 			    entity.addPart("API", new StringBody("L4CM"));
 			    entity.addPart("TKN",new StringBody(token));
 			    Toast.makeText(this, sharedPreferences.getString("name", ""), 9999999).show();
-			    entity.addPart("NAM",new StringBody("\"" + sharedPreferences.getString("name", "") + "\""));
+			    entity.addPart("NAM",new StringBody(sharedPreferences.getString("name", "")));
 			    Toast.makeText(this, sharedPreferences.getString("twitter", ""), 9999999).show();
 			    entity.addPart("TWT",new StringBody(sharedPreferences.getString("twitter", "")));
 			    entity.addPart("FILE", new FileBody(f));		
 			    Toast.makeText(this, "Added the parameters to send pic", 9999999).show();
 				post.setEntity(entity);
-				String text = getResponse();
-				Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+				return getResponse();
+				
 		    } catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		    return null;
 		   
 	}
 
