@@ -50,14 +50,40 @@ public class LogIn extends Activity implements OnClickListener {
         setContentView(R.layout.login);
         login = (Button) findViewById(R.id.btnLogin);
         login.setOnClickListener(this);
+        etMail = (EditText) findViewById(R.id.etE_mail);    	
+    	etPass = (EditText) findViewById(R.id.etPassword);
+    	cb = (CheckBox) findViewById(R.id.cbRemember);
         /** Check if the checkbox "remember me" was ticked to make a auto-login**/
+       
         if(LoadPreferences("autologin")!="")
         {
-        	if ( login()){
-        		proccedtoMain();
+        	if (isOnline()){
+        		
+        		if ( login()){
+            		proccedtoMain();
+            	}
+            	else{
+            		Toast.makeText(this, "Something went wrong :|", Toast.LENGTH_LONG).show();
+            		
+            	}
         	}
-        	else
-        		Toast.makeText(this, "Something went wrong :|", Toast.LENGTH_LONG).show();
+        	else{
+        		etMail.setText("" +LoadPreferences("mail").toString());
+        		etPass.setText("" +LoadPreferences("password".toString()));
+        		cb.setChecked(true);
+        		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        		builder.setMessage("You're not connected to the internet! You need that! You know you need that!")
+        		       .setCancelable(false)
+        		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        		           public void onClick(DialogInterface dialog, int id) {
+        		        	   dialog.cancel();
+        		           }
+        		       });
+        		AlertDialog alert = builder.create();
+        		alert.show();
+        		
+        	}
+        	
         }	
     }
     
@@ -67,11 +93,7 @@ public class LogIn extends Activity implements OnClickListener {
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressDialog.setMessage("Signing you to Codebits! :D");
-		
-		cb = (CheckBox) findViewById(R.id.cbRemember);
-    	etMail = (EditText) findViewById(R.id.etE_mail);    	
-    	etPass = (EditText) findViewById(R.id.etPassword);
-    	if (etMail.getText().toString().length() !=0 || etPass.getText().toString().length() !=0)
+		if (etMail.getText().toString().length() !=0 || etPass.getText().toString().length() !=0)
     	{
     	 	if (isOnline()){
     	 		/** Testing the progress dialog **/        	
