@@ -45,6 +45,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -93,11 +94,14 @@ public class ImagePreview extends Activity implements OnClickListener{
 			getAPIToken();
 			token=getResponse();
 			if (token!=""){
-				if (sendPic().equalsIgnoreCase("RESULT=0")){
-					//envio com sucesso
-					
+				String result = sendPic();
+				if (result.equalsIgnoreCase("RESULT=0")){
+					Intent i = new Intent(ImagePreview.this, ImageSent.class);
+					startActivityForResult(i, 0);
+					finish();					
 				}
 				else{
+					Log.e("Error on sending pic", result);
 					AlertDialog.Builder builder = new AlertDialog.Builder(this);
 	        		builder.setMessage("Something went wrong with the upload of your love :( ")
 	        		       .setCancelable(false)
@@ -271,6 +275,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 		    } catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				
 			}
 		    return null;
 		   
