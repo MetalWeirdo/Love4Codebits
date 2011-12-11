@@ -2,10 +2,14 @@ package info.love4codebits.app;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Calendar;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import com.google.ads.*;
+
+import android.R.integer;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,11 +47,20 @@ public class Main extends Activity implements OnClickListener{
 	        tv1.setText(LoadPreferences("nick"));
 	        tv1 = (TextView) findViewById(R.id.tvUsername);
 	        tv1.setText(LoadPreferences("name"));
+	        tv1 = (TextView) findViewById(R.id.date);
 	        btn1 = (Button) findViewById(R.id.btnCam);
 	        btn1.setOnClickListener(this);
 	        btn2 = (Button) findViewById(R.id.btnChoose);
 	        btn2.setOnClickListener(this);
-	        
+	        if (checkDate()){
+	        	tv1.setText("You didn't send a picture today! Do it!");
+	        }
+	        else
+	        {
+	        	tv1.setText("You already showed your love for Codebits today! Comeback tomorrow :)");
+	        	btn1.setEnabled(false);
+	        	btn2.setEnabled(false);
+	        }
 	        
 	 }
 	 
@@ -117,7 +130,16 @@ public class Main extends Activity implements OnClickListener{
 		        return null;
 		    }
 		}
-	 
+	 public boolean checkDate(){
+		 int date = Calendar.DATE ;
+		 if ( LoadPreferences("date").equalsIgnoreCase(Integer.toString(date))){
+			 return false;
+		 }
+		 else{
+			 return true;
+		 }
+		 
+	 }
 	
 	 
 	 
