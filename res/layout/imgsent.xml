@@ -47,23 +47,23 @@
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
         android:autoLink="web"
-        android:text="http://gallery.love4codebtis.info"
+        android:text="http://gallery.love4codebits.info"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ImageView
-        android:id="@+id/imageView2"
+    <Button
+        android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/heart" />
+        android:layout_marginTop="20dp"
+        android:text="See you tomorrow!" />
     
     <com.google.ads.AdView
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="38dp"
         ads:adSize="BANNER"
         ads:adUnitId="a14ee0d7a999c19"
         ads:loadAdOnCreate="true" />

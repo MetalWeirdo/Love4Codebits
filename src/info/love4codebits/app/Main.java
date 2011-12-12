@@ -8,6 +8,9 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -27,6 +30,7 @@ public class Main extends Activity implements OnClickListener{
 	
 	HttpClient client = new DefaultHttpClient();
 	static HttpPost post = new HttpPost("http://love4codebits.info/rest.php");
+	public static String MY_PREFS_FILE_NAME = "info.love4codebits.app.prefs";
 	static String urlt = "http://love4codebits.info/rest.php";
 	TextView tv1;
 	ImageView iv1;
@@ -34,16 +38,21 @@ public class Main extends Activity implements OnClickListener{
 	Button btn2;
 	Uri outputfileuri;
 	Calendar c = Calendar.getInstance();
+	AlertDialog.Builder builder;
+	public static SharedPreferences prefs;
 	 public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.main);
+
+	        prefs = new ObscuredSharedPreferences(this, this.getSharedPreferences(
+					MY_PREFS_FILE_NAME, Context.MODE_PRIVATE));
 	        /** set the objects **/
 	        iv1 = (ImageView) findViewById(R.id.ivAvatar);
-	        iv1.setImageDrawable((LoadAvatar(LoadPreferences("avatar"))));
+	        iv1.setImageDrawable((LoadAvatar(prefs.getString("avatar",""))));
 	        tv1 = (TextView) findViewById(R.id.tvNickname);
-	        tv1.setText(LoadPreferences("nick"));
+	        tv1.setText(prefs.getString("nick",""));
 	        tv1 = (TextView) findViewById(R.id.tvUsername);
-	        tv1.setText(LoadPreferences("name"));
+	        tv1.setText(prefs.getString("name",""));
 	        tv1 = (TextView) findViewById(R.id.date);
 	        btn1 = (Button) findViewById(R.id.btnCam);
 	        btn1.setOnClickListener(this);
@@ -73,10 +82,19 @@ public class Main extends Activity implements OnClickListener{
 	     // Handle item selection
 	     switch (item.getItemId()) {
 	     case R.id.about:
-	         /** about me and love4codebits **/
+	    	  builder = new AlertDialog.Builder(Main.this);
+		        builder.setCancelable(false);
+	    	  builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			        public void onClick(DialogInterface dialog, int id) {
+			     	   dialog.cancel();
+			        }
+			    });
+	    	 builder.setMessage("Developed by Rafael Pato (MetalWeirdo)" + "\n" + "This app is open-source , check it out at http://goo.gl/gx9Zc");
+	    	 AlertDialog alert = builder.create();
+			 alert.show();
 	    	 return true;
 		case R.id.logout:
-	         ClearPreferences();
+	         prefs.edit().clear().commit();
 	         Intent i = new Intent(Main.this, LogIn.class);
  			 startActivityForResult(i, 0);
 	 		 finish();	 		 
@@ -88,9 +106,9 @@ public class Main extends Activity implements OnClickListener{
 		switch(v.getId())
 		 {
 		  case R.id.btnCam: 
-			  SavePreferences("picmode", "cam");break;
+			  prefs.edit().putString("picmode", "cam").commit();break;
 		  case R.id.btnChoose:
-			  SavePreferences("picmode", "choose");break;
+			prefs.edit().putString("picmode", "choose").commit();break;
 		 }
 		 
 		 Intent i = new Intent(Main.this, ImagePreview.class);
@@ -100,24 +118,7 @@ public class Main extends Activity implements OnClickListener{
 	 }
 	
 		 
-	/** Load/Save of SharedPreferences, will change this to a single class **/
-	 private String LoadPreferences(String key){
-	        SharedPreferences sharedPreferences = getSharedPreferences("LogIn", MODE_PRIVATE);
-	        return (sharedPreferences.getString(key, ""));
-	        
-	 }
-	 public void SavePreferences(String key, String value){
-	        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-	        SharedPreferences.Editor editor = sharedPreferences.edit();
-	        editor.putString(key, value);
-	        editor.commit();
-	        }
-	 public void ClearPreferences (){
-		  SharedPreferences sharedPreferences = getSharedPreferences("LogIn", MODE_PRIVATE);
-	        SharedPreferences.Editor editor = sharedPreferences.edit();
-	        editor.clear();
-	        editor.commit();
-	 }
+	
 	 /** Getting the user's avatar to a drawable, this will probably bee removed to get the avatar via URI**/
 	 public static Drawable LoadAvatar(String url) {
 		    try {
@@ -130,11 +131,12 @@ public class Main extends Activity implements OnClickListener{
 		}
 	 public boolean checkDate(){
 		 int date = c.get(Calendar.DAY_OF_MONTH) ;
-		 if ( LoadPreferences("date").equalsIgnoreCase(Integer.toString(date))){
+		 if ( prefs.getInt("date", 0) == date){
+			 
 			 return false;
 		 }
-		 else{
-			 return true;
+		else{
+			return true;
 		 }
 		 
 	 }

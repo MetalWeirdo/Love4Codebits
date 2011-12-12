@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -44,13 +45,26 @@ public class LogIn extends Activity implements OnClickListener {
     Button login;
     CheckBox cb;
     ProgressDialog progressDialog;
+    AlertDialog.Builder builder;
+    public static SharedPreferences prefs;
+    public static String MY_PREFS_FILE_NAME = "info.love4codebits.app.prefs";
     @Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
-       
+
+        prefs = new ObscuredSharedPreferences(this, this.getSharedPreferences(
+   					MY_PREFS_FILE_NAME, Context.MODE_PRIVATE));
+        builder = new AlertDialog.Builder(LogIn.this);
+        builder.setCancelable(false);
+	    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	           public void onClick(DialogInterface dialog, int id) {
+	        	   dialog.cancel();
+	           }
+	       });
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setMessage("Signing you to Codebits! :D");
+		progressDialog.setCancelable(false);
         login = (Button) findViewById(R.id.btnLogin);
         login.setOnClickListener(this);
         etMail = (EditText) findViewById(R.id.etE_mail);    	
@@ -58,38 +72,40 @@ public class LogIn extends Activity implements OnClickListener {
     	cb = (CheckBox) findViewById(R.id.cbRemember);
         /** Check if the checkbox "remember me" was ticked to make a auto-login**/
        
-        if(LoadPreferences("autologin")!="")
+        if(prefs.getBoolean("autologin", false))
         {
+        	etMail.setText("" +prefs.getString("mail","").toString());
+    		etPass.setText("" +prefs.getString("password","").toString());
+    		cb.setChecked(true);
         	progressDialog.show();
-        	if (isOnline()){
-        		
-        		if ( login()){
-            		proccedtoMain();
-            		progressDialog.dismiss();
-            	}
-            	else{
-            		progressDialog.dismiss();
-            		Toast.makeText(this, "Something went wrong :|", Toast.LENGTH_LONG).show();
-            		
-            	}
-        	}
-        	else{
-        		etMail.setText("" +LoadPreferences("mail").toString());
-        		etPass.setText("" +LoadPreferences("password".toString()));
-        		cb.setChecked(true);
-        		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        		builder.setMessage("You're not connected to the internet! You need that! You know you need that!")
-        		       .setCancelable(false)
-        		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-        		           public void onClick(DialogInterface dialog, int id) {
-        		        	   dialog.cancel();
-        		           }
-        		       });
-        		AlertDialog alert = builder.create();
-        		alert.show();
-        		
-        	}
-        	
+        	new Thread(new Runnable() {
+				public void run () {
+					if (isOnline()){
+		        		
+		        		if ( login()){
+		            		proccedtoMain();
+		            		progressDialog.dismiss();
+		            	}
+		            	else{
+		            		progressDialog.dismiss();
+		            		Toast.makeText(LogIn.this, "Something went wrong :|", Toast.LENGTH_LONG).show();
+		            		
+		            	}
+		        	}
+		        	else{
+		        		
+		        		cb.setChecked(true);
+		        		 
+		        		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
+		        		AlertDialog alert = builder.create();
+		        		alert.show();
+		        		
+		        	}
+		        	
+				}
+			
+			}).start();
+        
         }	
     }
     
@@ -97,66 +113,50 @@ public class LogIn extends Activity implements OnClickListener {
 	public void onClick(View v){
 		if (etMail.getText().toString().length() !=0 || etPass.getText().toString().length() !=0)
     	{
-    	 	if (isOnline()){
-    	 		/** Testing the progress dialog **/        	
-            	
-        		progressDialog.show();
-        		
-            	/** Saving the e-mail and password to SharedPreferences**/
-            	
-        		SavePreferences("mail",etMail.getText().toString() );
-            	SavePreferences("password",  etPass.getText().toString());
-            	
-            	/** Setting the auto-login to "true" if checkbox is ticked **/
-            	
-            	if (cb.isChecked()){
-            		SavePreferences("autologin", "true");
-            	}
-            	
-            	/** Login to Codebits **/
-            	
-            	if (login()){
-            		proccedtoMain();
-            	}
-            	else{
-            		progressDialog.dismiss();
-            	}
-    	 	}	
-        	else
-        	{
-            		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            		builder.setMessage("You're not connected to the internet! You need that! You know you need that!")
-            		       .setCancelable(false)
-            		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            		           public void onClick(DialogInterface dialog, int id) {
-            		        	   dialog.cancel();
-            		           }
-            		       });
-            		AlertDialog alert = builder.create();
-            		alert.show();
+    	 		progressDialog.show();
+        		new Thread(new Runnable() {
+    				public void run () {
+    					if (isOnline()){
+    		    	 	
+    					/** Saving the e-mail and password to SharedPreferences**/
+    	            	
+    	        		prefs.edit().putString("mail",etMail.getText().toString()).commit();
+    	        		prefs.edit().putString("password",  etPass.getText().toString()).commit();
+    	            	
+    	            	/** Setting the auto-login to "true" if checkbox is ticked **/
+    	            	
+    	            	if (cb.isChecked()){
+    	            		prefs.edit().putBoolean("autologin", true).commit();
+    	            	}
+    	            	
+    	            	/** Login to Codebits **/
+    	            	
+    	            	if (login()){
+    	            		proccedtoMain();
+    	            	}
+    	            	else{
+    	            		progressDialog.dismiss();
+    	            	}
+    	    	 	}	
+    	        	else
+    	        	{
+    	            		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
+    	            		AlertDialog alert = builder.create();
+    	            		alert.show();
 
-        	}
-    	
-        	
-    	}
-    	else{
-    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    		builder.setMessage("Both the email and the password fields should be != null , you know that!")
-    		       .setCancelable(false)
-    		       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-    		           public void onClick(DialogInterface dialog, int id) {
-    		        	   dialog.cancel();
-    		           }
-    		       });
-    		AlertDialog alert = builder.create();
-    		alert.show();
-    	}
-   
-    	
-    	
+    	        	}
+    	    	
+    	        	
+    	    	    	     	
+    			}
+        		}).start();
+        		}
+    	    	else{
+    	    		builder.setMessage("Both the email and the password fields should be != null , you know that!");
+    	    		AlertDialog alert = builder.create();
+    	    		alert.show();
+    	    	}
 
-    	
-    	
     	
     }
     
@@ -190,29 +190,15 @@ public class LogIn extends Activity implements OnClickListener {
 		return builder.toString();
 	}
     
-    /** Load/Save of SharedPreferences, will change this to a single class **/
-    
-    public void SavePreferences(String key, String value){
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, value);
-        editor.commit();
-        }
-  
-    public String LoadPreferences(String key){
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        return (sharedPreferences.getString(key, ""));
-    }
-    
     /** Function to get the Codebits Token to use on Login **/
     
     private boolean getToken(){
 		try {
 			jObject = new JSONObject(getJSON("/gettoken?user="
-					+ LoadPreferences("mail") + "&password="
-					+ LoadPreferences("password")));
-			SavePreferences("uid", jObject.getString("uid"));
-			SavePreferences("token", jObject.getString("token"));
+					+ prefs.getString("mail","") + "&password="
+					+ prefs.getString("password","")));
+			prefs.edit().putString("uid", jObject.getString("uid")).commit();
+			prefs.edit().putString("token", jObject.getString("token")).commit();
 			return true;
 		} catch (JSONException e) {
 			Toast.makeText(this, "Codebits said noo!", 9999999).show();
@@ -224,12 +210,12 @@ public class LogIn extends Activity implements OnClickListener {
     
 	private boolean getUserInfo() {
 		try {
-			jObject = new JSONObject(getJSON("/user/" + LoadPreferences("uid")
-					+ "?token=" + LoadPreferences("token")));
-			SavePreferences("nick", jObject.getString("nick"));
-			SavePreferences("avatar", jObject.getString("avatar"));
-			SavePreferences("twitter", jObject.getString("twitter"));
-			SavePreferences("name", jObject.getString("name"));
+			jObject = new JSONObject(getJSON("/user/" + prefs.getString("uid","")
+					+ "?token=" +prefs.getString("token","")));
+			prefs.edit().putString("nick", jObject.getString("nick")).commit();
+			prefs.edit().putString("avatar", jObject.getString("avatar")).commit();
+			prefs.edit().putString("twitter", jObject.getString("twitter")).commit();
+			prefs.edit().putString("name", jObject.getString("name")).commit();
 			return true;
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

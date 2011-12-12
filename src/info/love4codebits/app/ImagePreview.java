@@ -32,6 +32,7 @@ import org.apache.http.message.BasicNameValuePair;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -63,10 +64,15 @@ public class ImagePreview extends Activity implements OnClickListener{
 	ProgressDialog progressDialog;
 	private String selectedImagePath;
 	AlertDialog.Builder builder;
+	public static SharedPreferences prefs;
+    public static String MY_PREFS_FILE_NAME = "info.love4codebits.app.prefs";
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.imgpreview);
+		
+		prefs = new ObscuredSharedPreferences(this, this.getSharedPreferences(
+					MY_PREFS_FILE_NAME, Context.MODE_PRIVATE));
 		iv1 = (ImageView) findViewById(R.id.ivPreview);
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setMessage("Uploading your love...");
@@ -80,7 +86,7 @@ public class ImagePreview extends Activity implements OnClickListener{
 	    });
 		builder.setCancelable(false);
 		
-		String picmode = LoadPreferences("picmode");
+		String picmode = prefs.getString("picmode","");
 		if (picmode.equalsIgnoreCase("cam")) {
 			cam();
 		} else{
@@ -233,13 +239,6 @@ public class ImagePreview extends Activity implements OnClickListener{
 	    }
 	
 	  
-	// Load/Save of SharedPreferences, will change this to a single class
-
-	private String LoadPreferences(String key){
-        SharedPreferences sharedPreferences = getSharedPreferences("Main",MODE_PRIVATE);
-        return (sharedPreferences.getString(key, ""));
-        
- }
 	public void getAPIToken (){
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 		pairs.add(new BasicNameValuePair("API", "GTKN"));
