@@ -43,11 +43,14 @@ public class LogIn extends Activity implements OnClickListener {
     EditText etPass;
     Button login;
     CheckBox cb;
-    
+    ProgressDialog progressDialog;
     @Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+       
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setMessage("Signing you to Codebits! :D");
         login = (Button) findViewById(R.id.btnLogin);
         login.setOnClickListener(this);
         etMail = (EditText) findViewById(R.id.etE_mail);    	
@@ -57,12 +60,15 @@ public class LogIn extends Activity implements OnClickListener {
        
         if(LoadPreferences("autologin")!="")
         {
+        	progressDialog.show();
         	if (isOnline()){
         		
         		if ( login()){
             		proccedtoMain();
+            		progressDialog.dismiss();
             	}
             	else{
+            		progressDialog.dismiss();
             		Toast.makeText(this, "Something went wrong :|", Toast.LENGTH_LONG).show();
             		
             	}
@@ -89,10 +95,6 @@ public class LogIn extends Activity implements OnClickListener {
     
     
 	public void onClick(View v){
-		ProgressDialog progressDialog;
-		progressDialog = new ProgressDialog(this);
-		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressDialog.setMessage("Signing you to Codebits! :D");
 		if (etMail.getText().toString().length() !=0 || etPass.getText().toString().length() !=0)
     	{
     	 	if (isOnline()){

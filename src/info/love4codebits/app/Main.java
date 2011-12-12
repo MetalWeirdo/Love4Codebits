@@ -7,9 +7,6 @@ import java.util.Calendar;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import com.google.ads.*;
-
-import android.R.integer;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,7 +33,7 @@ public class Main extends Activity implements OnClickListener{
 	Button btn1;
 	Button btn2;
 	Uri outputfileuri;
-	
+	Calendar c = Calendar.getInstance();
 	 public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	        setContentView(R.layout.main);
@@ -52,8 +49,9 @@ public class Main extends Activity implements OnClickListener{
 	        btn1.setOnClickListener(this);
 	        btn2 = (Button) findViewById(R.id.btnChoose);
 	        btn2.setOnClickListener(this);
+	        
 	        if (checkDate()){
-	        	tv1.setText("You didn't send a picture today! Do it!");
+	        	tv1.setText("You haven't showed your love for Codebits today! Do it now! ");
 	        }
 	        else
 	        {
@@ -131,7 +129,7 @@ public class Main extends Activity implements OnClickListener{
 		    }
 		}
 	 public boolean checkDate(){
-		 int date = Calendar.DATE ;
+		 int date = c.get(Calendar.DAY_OF_MONTH) ;
 		 if ( LoadPreferences("date").equalsIgnoreCase(Integer.toString(date))){
 			 return false;
 		 }

@@ -50,6 +50,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
         android:text="Date"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -111,7 +113,7 @@
      	    android:layout_width="wrap_content"
      	    android:layout_height="wrap_content"
      	    android:layout_gravity="end"
-     	    android:layout_marginTop="90dp"
+     	    android:layout_marginTop="20dp"
      	    ads:adSize="BANNER"
      	    ads:adUnitId="a14ee0d7a999c19"
      	    ads:loadAdOnCreate="true" />
