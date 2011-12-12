@@ -83,7 +83,7 @@ public class Main extends Activity implements OnClickListener{
 	     switch (item.getItemId()) {
 	     case R.id.about:
 	    	  builder = new AlertDialog.Builder(Main.this);
-		        builder.setCancelable(false);
+		      builder.setCancelable(false);
 	    	  builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			        public void onClick(DialogInterface dialog, int id) {
 			     	   dialog.cancel();
