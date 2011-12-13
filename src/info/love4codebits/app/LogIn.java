@@ -46,7 +46,8 @@ public class LogIn extends Activity implements OnClickListener {
     CheckBox cb;
     ProgressDialog progressDialog;
     AlertDialog.Builder builder;
-    public static SharedPreferences prefs;
+    AlertDialog alert;
+    static SharedPreferences prefs;
     public static String MY_PREFS_FILE_NAME = "info.love4codebits.app.prefs";
     @Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +63,7 @@ public class LogIn extends Activity implements OnClickListener {
 	        	   dialog.cancel();
 	           }
 	       });
+	     
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setMessage("Signing you to Codebits! :D");
 		progressDialog.setCancelable(false);
@@ -88,7 +90,7 @@ public class LogIn extends Activity implements OnClickListener {
 		            	}
 		            	else{
 		            		progressDialog.dismiss();
-		            		Toast.makeText(LogIn.this, "Something went wrong :|", Toast.LENGTH_LONG).show();
+		            		
 		            		
 		            	}
 		        	}
@@ -97,7 +99,7 @@ public class LogIn extends Activity implements OnClickListener {
 		        		cb.setChecked(true);
 		        		 
 		        		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
-		        		AlertDialog alert = builder.create();
+		        		alert= builder.create();
 		        		alert.show();
 		        		
 		        	}
@@ -111,7 +113,7 @@ public class LogIn extends Activity implements OnClickListener {
     
     
 	public void onClick(View v){
-		if (etMail.getText().toString().length() !=0 || etPass.getText().toString().length() !=0)
+		if (etMail.getText().toString().length() !=0 && etPass.getText().toString().length() !=0)
     	{
     	 		progressDialog.show();
         		new Thread(new Runnable() {
@@ -141,7 +143,7 @@ public class LogIn extends Activity implements OnClickListener {
     	        	else
     	        	{
     	            		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
-    	            		AlertDialog alert = builder.create();
+    	            		alert= builder.create();
     	            		alert.show();
 
     	        	}
@@ -153,7 +155,7 @@ public class LogIn extends Activity implements OnClickListener {
         		}
     	    	else{
     	    		builder.setMessage("Both the email and the password fields should be != null , you know that!");
-    	    		AlertDialog alert = builder.create();
+    	    		alert= builder.create();
     	    		alert.show();
     	    	}
 
@@ -201,7 +203,6 @@ public class LogIn extends Activity implements OnClickListener {
 			prefs.edit().putString("token", jObject.getString("token")).commit();
 			return true;
 		} catch (JSONException e) {
-			Toast.makeText(this, "Codebits said noo!", 9999999).show();
 			return false;
 		}
 	}
