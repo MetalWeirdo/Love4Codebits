@@ -254,14 +254,13 @@ public class ImagePreview extends Activity implements OnClickListener{
 		
 	}
 	public String sendPic (){
-		SharedPreferences sharedPreferences = getSharedPreferences("LogIn",MODE_PRIVATE);
-		    try {
+		   try {
 		    	File f = new File(selectedImagePath);
 			    MultipartEntity entity = new MultipartEntity();
 			    entity.addPart("API", new StringBody("L4CM"));
 			    entity.addPart("TKN",new StringBody(token));
-			    entity.addPart("NAM",new StringBody(sharedPreferences.getString("name", "")));
-			    entity.addPart("TWT",new StringBody(sharedPreferences.getString("twitter", "")));
+			    entity.addPart("NAM",new StringBody(prefs.getString("name","")));
+			    entity.addPart("TWT",new StringBody(prefs.getString("twitter","")));
 			    entity.addPart("FILE", new FileBody(f));		
 			    post.setEntity(entity);
 				return getResponse();

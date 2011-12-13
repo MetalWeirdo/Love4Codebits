@@ -23,6 +23,10 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -53,9 +57,10 @@ public class LogIn extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
-
+        
         prefs = new ObscuredSharedPreferences(this, this.getSharedPreferences(
    					MY_PREFS_FILE_NAME, Context.MODE_PRIVATE));
+        prefs.edit().putString("fail", "").commit();
         builder = new AlertDialog.Builder(LogIn.this);
         builder.setCancelable(false);
 	    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -72,6 +77,7 @@ public class LogIn extends Activity implements OnClickListener {
         etMail = (EditText) findViewById(R.id.etE_mail);    	
     	etPass = (EditText) findViewById(R.id.etPassword);
     	cb = (CheckBox) findViewById(R.id.cbRemember);
+    	
         /** Check if the checkbox "remember me" was ticked to make a auto-login**/
        
         if(prefs.getBoolean("autologin", false))
@@ -80,86 +86,121 @@ public class LogIn extends Activity implements OnClickListener {
     		etPass.setText("" +prefs.getString("password","").toString());
     		cb.setChecked(true);
         	progressDialog.show();
-        	new Thread(new Runnable() {
+        	
+        	
+        	if (isOnline()){
+        		new Thread(new Runnable() {
 				public void run () {
-					if (isOnline()){
-		        		
+					   		
 		        		if ( login()){
 		            		proccedtoMain();
-		            		progressDialog.dismiss();
+		            		progressDialog.dismiss();	
 		            	}
 		            	else{
 		            		progressDialog.dismiss();
-		            		
-		            		
+		            		builder.setMessage("Codebits said no to your data :o");
+		            		alert= builder.create();		            		
+		            		Looper.prepare();
+		            		alert.show();
+		            		Looper.loop();
+		            		Looper.myLooper().quit();
 		            	}
-		        	}
-		        	else{
-		        		
-		        		cb.setChecked(true);
-		        		 
-		        		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
-		        		alert= builder.create();
-		        		alert.show();
-		        		
-		        	}
 		        	
 				}
 			
 			}).start();
-        
+        		
+        	}
+        	else{
+        		cb.setChecked(true);
+        		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
+        		alert= builder.create();
+        		alert.show();
+        		
+        	}
+        	if (prefs.getString("error", "").equalsIgnoreCase("")){
+        		
+        	}
+        	else{
+        		cb.setChecked(true);
+        		showError();
+        		
+        	}
         }	
     }
     
     
 	public void onClick(View v){
+		prefs.edit().putString("fail", "").commit();
 		if (etMail.getText().toString().length() !=0 && etPass.getText().toString().length() !=0)
     	{
-    	 		progressDialog.show();
-        		new Thread(new Runnable() {
-    				public void run () {
-    					if (isOnline()){
-    		    	 	
-    					/** Saving the e-mail and password to SharedPreferences**/
-    	            	
-    	        		prefs.edit().putString("mail",etMail.getText().toString()).commit();
-    	        		prefs.edit().putString("password",  etPass.getText().toString()).commit();
-    	            	
-    	            	/** Setting the auto-login to "true" if checkbox is ticked **/
-    	            	
-    	            	if (cb.isChecked()){
-    	            		prefs.edit().putBoolean("autologin", true).commit();
-    	            	}
-    	            	
-    	            	/** Login to Codebits **/
-    	            	
-    	            	if (login()){
-    	            		proccedtoMain();
-    	            	}
-    	            	else{
-    	            		progressDialog.dismiss();
-    	            	}
-    	    	 	}	
-    	        	else
-    	        	{
-    	            		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
-    	            		alert= builder.create();
-    	            		alert.show();
+			progressDialog.show();
+			if (isOnline()) {
+				new Thread(new Runnable() {
+					public void run() {
+						Handler mHandler;
+						
+						/** Saving the e-mail and password to SharedPreferences **/
 
-    	        	}
-    	    	
-    	        	
-    	    	    	     	
-    			}
-        		}).start();
-        		}
-    	    	else{
-    	    		builder.setMessage("Both the email and the password fields should be != null , you know that!");
-    	    		alert= builder.create();
-    	    		alert.show();
-    	    	}
+						prefs.edit()
+								.putString("mail", etMail.getText().toString())
+								.commit();
+						prefs.edit()
+								.putString("password",
+										etPass.getText().toString()).commit();
 
-    	
+						/**
+						 * Setting the auto-login to "true" if checkbox is
+						 * ticked
+						 **/
+
+						if (cb.isChecked()) {
+							prefs.edit().putBoolean("autologin", true).commit();
+						}
+
+						/** Login to Codebits **/
+
+						if (login()) {
+							proccedtoMain();
+						} else {
+							Thread uiThread = new HandlerThread("UIHandler");
+						    uiThread.start();
+						    uiHandler = new UIHandler(uiThread.getLooper());
+		            		builder.setMessage("Codebits said no to your data :o");
+		            		alert= builder.create();		            		
+		            		
+		            		mHandler = new Handler() {
+		                        public void handleMessage(Message msg) {
+		                        	alert.show();
+		                        	Looper.myLooper().quit();
+		                        }
+		                    };
+		            		
+		            		Looper.loop();
+		            		
+							progressDialog.dismiss();
+							
+						}
+					}
+				}).start();
+			} else {
+				progressDialog.dismiss();
+				builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
+				alert = builder.create();
+				alert.show();
+
+			}
+		} else {
+			builder.setMessage("Both the email and the password fields should be != null , you know that!");
+			alert = builder.create();
+			alert.show();
+		}
+		if (prefs.getString("fail", "").equalsIgnoreCase("")){
+    		Toast.makeText(this, prefs.getString("fail",""), 99999).show();
+    	}
+    	else{
+    		showError();
+    	}
     }
     
     /** Get the JSON file**/
@@ -254,6 +295,46 @@ public class LogIn extends Activity implements OnClickListener {
     	    return false;
 
     	}
+    public void showError(){
+    	builder.setMessage("Codebits said no to your data :o");
+    	alert= builder.create();
+		alert.show();
+    }
+    private final class UIHandler extends Handler
+    {
+        public static final int DISPLAY_UI_TOAST = 0;
+        public static final int DISPLAY_UI_DIALOG = 1;
+
+        public UIHandler(Looper looper)
+        {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg)
+        {
+            switch(msg.what)
+            {
+            case UIHandler.DISPLAY_UI_TOAST:
+            {
+                Context context = getApplicationContext();
+                Toast t = Toast.makeText(context, (String)msg.obj, Toast.LENGTH_LONG);
+                t.show();
+            }
+            case UIHandler.DISPLAY_UI_DIALOG:
+                //TBD
+            default:
+                break;
+            }
+        }
+    }
+
+    protected void handleUIRequest(String message)
+    {
+        Message msg = uiHandler.obtainMessage(UIHandler.DISPLAY_UI_TOAST);
+        msg.obj = message;
+        uiHandler.sendMessage(msg);
+    }
  }
 
        
