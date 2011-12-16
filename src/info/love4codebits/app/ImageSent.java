@@ -18,12 +18,14 @@ public class ImageSent extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.imgsent);
+		
 		prefs = new ObscuredSharedPreferences(this, this.getSharedPreferences(
 				MY_PREFS_FILE_NAME, Context.MODE_PRIVATE));
 		btn1 = (Button) findViewById(R.id.button1);
 		btn1.setOnClickListener(this);
-		setContentView(R.layout.imgsent);
-	    prefs.edit().putInt("date", c.get(Calendar.DAY_OF_MONTH)).commit();
+		
+		prefs.edit().putInt("date", c.get(Calendar.DAY_OF_MONTH)).commit();
 	 } 
 	@Override
 	public void onClick(View arg0) {

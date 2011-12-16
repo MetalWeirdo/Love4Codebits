@@ -260,6 +260,9 @@ public class ImagePreview extends Activity implements OnClickListener{
 			    entity.addPart("API", new StringBody("L4CM"));
 			    entity.addPart("TKN",new StringBody(token));
 			    entity.addPart("NAM",new StringBody(prefs.getString("name","")));
+			    if (prefs.getString("twitter","").equalsIgnoreCase("")){
+			    	prefs.edit().putString("twitter", prefs.getString("name", "")).commit();	
+			    }
 			    entity.addPart("TWT",new StringBody(prefs.getString("twitter","")));
 			    entity.addPart("FILE", new FileBody(f));		
 			    post.setEntity(entity);

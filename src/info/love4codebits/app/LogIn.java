@@ -20,8 +20,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.drm.DrmStore.Action;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -41,105 +43,99 @@ import org.json.JSONObject;
 
 @SuppressWarnings("unused")
 public class LogIn extends Activity implements OnClickListener {
-    /** Called when the activity is first created. */
+	/** Called when the activity is first created. */
 	String APIurl = "https://services.sapo.pt/Codebits";
-    JSONObject jObject;
-    EditText etMail;
-    EditText etPass;
-    Button login;
-    CheckBox cb;
-    ProgressDialog progressDialog;
-    AlertDialog.Builder builder;
-    AlertDialog alert;
-    static SharedPreferences prefs;
-    public static String MY_PREFS_FILE_NAME = "info.love4codebits.app.prefs";
-    @Override
+	JSONObject jObject;
+	EditText etMail;
+	EditText etPass;
+	Button login;
+	CheckBox cb;
+	ProgressDialog progressDialog;
+	AlertDialog.Builder builder;
+	AlertDialog alert;
+	static SharedPreferences prefs;
+	public static String MY_PREFS_FILE_NAME = "info.love4codebits.app.prefs";
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
-        
-        prefs = new ObscuredSharedPreferences(this, this.getSharedPreferences(
-   					MY_PREFS_FILE_NAME, Context.MODE_PRIVATE));
-        prefs.edit().putString("fail", "").commit();
-        builder = new AlertDialog.Builder(LogIn.this);
-        builder.setCancelable(false);
-	    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-	           public void onClick(DialogInterface dialog, int id) {
-	        	   dialog.cancel();
-	           }
-	       });
-	     
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.login);
+
+		prefs = new ObscuredSharedPreferences(this, this.getSharedPreferences(
+				MY_PREFS_FILE_NAME, Context.MODE_PRIVATE));
+		prefs.edit().putString("fail", "").commit();
+		builder = new AlertDialog.Builder(LogIn.this);
+		builder.setCancelable(false);
+		builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.cancel();
+			}
+		});
+
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setMessage("Signing you to Codebits! :D");
 		progressDialog.setCancelable(false);
-        login = (Button) findViewById(R.id.btnLogin);
-        login.setOnClickListener(this);
-        etMail = (EditText) findViewById(R.id.etE_mail);    	
-    	etPass = (EditText) findViewById(R.id.etPassword);
-    	cb = (CheckBox) findViewById(R.id.cbRemember);
-    	
-        /** Check if the checkbox "remember me" was ticked to make a auto-login**/
-       
-        if(prefs.getBoolean("autologin", false))
-        {
-        	etMail.setText("" +prefs.getString("mail","").toString());
-    		etPass.setText("" +prefs.getString("password","").toString());
-    		cb.setChecked(true);
-        	progressDialog.show();
-        	
-        	
-        	if (isOnline()){
-        		new Thread(new Runnable() {
-				public void run () {
-					   		
-		        		if ( login()){
-		            		proccedtoMain();
-		            		progressDialog.dismiss();	
-		            	}
-		            	else{
-		            		progressDialog.dismiss();
-		            		builder.setMessage("Codebits said no to your data :o");
-		            		alert= builder.create();		            		
-		            		Looper.prepare();
-		            		alert.show();
-		            		Looper.loop();
-		            		Looper.myLooper().quit();
-		            	}
-		        	
-				}
-			
-			}).start();
-        		
-        	}
-        	else{
-        		cb.setChecked(true);
-        		builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
-        		alert= builder.create();
-        		alert.show();
-        		
-        	}
-        	if (prefs.getString("error", "").equalsIgnoreCase("")){
-        		
-        	}
-        	else{
-        		cb.setChecked(true);
-        		showError();
-        		
-        	}
-        }	
-    }
-    
-    
-	public void onClick(View v){
-		prefs.edit().putString("fail", "").commit();
-		if (etMail.getText().toString().length() !=0 && etPass.getText().toString().length() !=0)
-    	{
+		login = (Button) findViewById(R.id.btnLogin);
+		login.setOnClickListener(this);
+		etMail = (EditText) findViewById(R.id.etE_mail);
+		etPass = (EditText) findViewById(R.id.etPassword);
+		cb = (CheckBox) findViewById(R.id.cbRemember);
+
+		/** Check if the checkbox "remember me" was ticked to make a auto-login **/
+
+		if (prefs.getBoolean("autologin", false)) {
+			etMail.setText("" + prefs.getString("mail", "").toString());
+			etPass.setText("" + prefs.getString("password", "").toString());
+			cb.setChecked(true);
 			progressDialog.show();
+
 			if (isOnline()) {
 				new Thread(new Runnable() {
 					public void run() {
-						Handler mHandler;
-						
+
+						if (login()) {
+							proccedtoMain();
+							progressDialog.dismiss();
+						} else {
+							LogIn.this.runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+									builder.setMessage("Codebits said no to your data :o");
+									alert = builder.create();
+									alert.show();
+									progressDialog.dismiss();
+								}
+
+							});
+							LogIn.this.runOnUiThread(null);
+
+						}
+
+					}
+
+				}).start();
+
+			} else {
+				cb.setChecked(true);
+				builder.setMessage("You're not connected to the internet! You need that! You know you need that!");
+				alert = builder.create();
+				alert.show();
+
+			}
+			
+
+		}
+	}
+
+	public void onClick(View v) {
+		if (etMail.getText().toString().length() != 0
+				&& etPass.getText().toString().length() != 0) {
+			progressDialog.show();
+			if (isOnline()) {
+				new Thread(new Runnable() {
+
+					public void run() {
 						/** Saving the e-mail and password to SharedPreferences **/
 
 						prefs.edit()
@@ -163,24 +159,20 @@ public class LogIn extends Activity implements OnClickListener {
 						if (login()) {
 							proccedtoMain();
 						} else {
-							Thread uiThread = new HandlerThread("UIHandler");
-						    uiThread.start();
-						    uiHandler = new UIHandler(uiThread.getLooper());
-		            		builder.setMessage("Codebits said no to your data :o");
-		            		alert= builder.create();		            		
-		            		
-		            		mHandler = new Handler() {
-		                        public void handleMessage(Message msg) {
-		                        	alert.show();
-		                        	Looper.myLooper().quit();
-		                        }
-		                    };
-		            		
-		            		Looper.loop();
-		            		
-							progressDialog.dismiss();
-							
+							LogIn.this.runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+									builder.setMessage("Codebits said no to your data :o");
+									alert = builder.create();
+									alert.show();
+									progressDialog.dismiss();
+								}
+
+							});
+							LogIn.this.runOnUiThread(null);
 						}
+
 					}
 				}).start();
 			} else {
@@ -195,17 +187,12 @@ public class LogIn extends Activity implements OnClickListener {
 			alert = builder.create();
 			alert.show();
 		}
-		if (prefs.getString("fail", "").equalsIgnoreCase("")){
-    		Toast.makeText(this, prefs.getString("fail",""), 99999).show();
-    	}
-    	else{
-    		showError();
-    	}
-    }
-    
-    /** Get the JSON file**/
-    
-    public String getJSON(String rurl){	
+
+	}
+
+	/** Get the JSON file **/
+
+	public String getJSON(String rurl) {
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = new DefaultHttpClient();
 		HttpGet httpGet = new HttpGet(APIurl + rurl);
@@ -232,31 +219,38 @@ public class LogIn extends Activity implements OnClickListener {
 		}
 		return builder.toString();
 	}
-    
-    /** Function to get the Codebits Token to use on Login **/
-    
-    private boolean getToken(){
+
+	/** Function to get the Codebits Token to use on Login **/
+
+	private boolean getToken() {
 		try {
 			jObject = new JSONObject(getJSON("/gettoken?user="
-					+ prefs.getString("mail","") + "&password="
-					+ prefs.getString("password","")));
+					+ prefs.getString("mail", "") + "&password="
+					+ prefs.getString("password", "")));
 			prefs.edit().putString("uid", jObject.getString("uid")).commit();
-			prefs.edit().putString("token", jObject.getString("token")).commit();
+			prefs.edit().putString("token", jObject.getString("token"))
+					.commit();
 			return true;
 		} catch (JSONException e) {
 			return false;
 		}
 	}
-    
-    /** Function to get the User Info (nickname,real name, twitter, avatar,etc...) after getting the token **/
-    
+
+	/**
+	 * Function to get the User Info (nickname,real name, twitter,
+	 * avatar,etc...) after getting the token
+	 **/
+
 	private boolean getUserInfo() {
 		try {
-			jObject = new JSONObject(getJSON("/user/" + prefs.getString("uid","")
-					+ "?token=" +prefs.getString("token","")));
+			jObject = new JSONObject(getJSON("/user/"
+					+ prefs.getString("uid", "") + "?token="
+					+ prefs.getString("token", "")));
 			prefs.edit().putString("nick", jObject.getString("nick")).commit();
-			prefs.edit().putString("avatar", jObject.getString("avatar")).commit();
-			prefs.edit().putString("twitter", jObject.getString("twitter")).commit();
+			prefs.edit().putString("avatar", jObject.getString("avatar"))
+					.commit();
+			prefs.edit().putString("twitter", jObject.getString("twitter"))
+					.commit();
 			prefs.edit().putString("name", jObject.getString("name")).commit();
 			return true;
 		} catch (JSONException e) {
@@ -266,17 +260,23 @@ public class LogIn extends Activity implements OnClickListener {
 		}
 	}
 
-	/** Function to proceed to the Main view after login in and get the user's info **/
-	
+	/**
+	 * Function to proceed to the Main view after login in and get the user's
+	 * info
+	 **/
+
 	private void proccedtoMain() {
 		Intent i = new Intent(LogIn.this, Main.class);
 		startActivityForResult(i, 0);
 		finish();
 	}
-	
-	/** Function to call when you want to login. It calls the getToken and getUserInfo **/
-	
-    private boolean login() {
+
+	/**
+	 * Function to call when you want to login. It calls the getToken and
+	 * getUserInfo
+	 **/
+
+	private boolean login() {
 		if (getToken()) {
 			if (getUserInfo()) {
 				return true;
@@ -285,56 +285,15 @@ public class LogIn extends Activity implements OnClickListener {
 		} else
 			return false;
 	}
-    
-    public boolean isOnline() {
-    	   ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-    	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-    	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-    	        return true;
-    	    }
-    	    return false;
 
-    	}
-    public void showError(){
-    	builder.setMessage("Codebits said no to your data :o");
-    	alert= builder.create();
-		alert.show();
-    }
-    private final class UIHandler extends Handler
-    {
-        public static final int DISPLAY_UI_TOAST = 0;
-        public static final int DISPLAY_UI_DIALOG = 1;
+	public boolean isOnline() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
 
-        public UIHandler(Looper looper)
-        {
-            super(looper);
-        }
+	}
 
-        @Override
-        public void handleMessage(Message msg)
-        {
-            switch(msg.what)
-            {
-            case UIHandler.DISPLAY_UI_TOAST:
-            {
-                Context context = getApplicationContext();
-                Toast t = Toast.makeText(context, (String)msg.obj, Toast.LENGTH_LONG);
-                t.show();
-            }
-            case UIHandler.DISPLAY_UI_DIALOG:
-                //TBD
-            default:
-                break;
-            }
-        }
-    }
-
-    protected void handleUIRequest(String message)
-    {
-        Message msg = uiHandler.obtainMessage(UIHandler.DISPLAY_UI_TOAST);
-        msg.obj = message;
-        uiHandler.sendMessage(msg);
-    }
- }
-
-       
+}

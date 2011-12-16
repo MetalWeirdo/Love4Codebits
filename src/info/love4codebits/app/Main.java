@@ -59,7 +59,7 @@ public class Main extends Activity implements OnClickListener{
 	        btn2 = (Button) findViewById(R.id.btnChoose);
 	        btn2.setOnClickListener(this);
 	        
-	        if (checkDate()){
+	        /**if (checkDate()){
 	        	tv1.setText("You haven't showed your love for Codebits today! Do it now! ");
 	        }
 	        else
@@ -67,7 +67,7 @@ public class Main extends Activity implements OnClickListener{
 	        	tv1.setText("You already showed your love for Codebits today! Comeback tomorrow :)");
 	        	btn1.setEnabled(false);
 	        	btn2.setEnabled(false);
-	        }
+	        }**/
 	        
 	 }
 	 
@@ -113,7 +113,7 @@ public class Main extends Activity implements OnClickListener{
 		 
 		 Intent i = new Intent(Main.this, ImagePreview.class);
 		 startActivity(i);
-		 
+		 finish();
 				 
 	 }
 	
@@ -140,7 +140,19 @@ public class Main extends Activity implements OnClickListener{
 		 }
 		 
 	 }
-	
+	@Override
+	public void onResume(){
+		if (checkDate()){
+        	tv1.setText("You haven't showed your love for Codebits today! Do it now! ");
+        }
+        else
+        {
+        	tv1.setText("You already showed your love for Codebits today! Comeback tomorrow :)");
+        	btn1.setEnabled(false);
+        	btn2.setEnabled(false);
+        }
+		super.onResume();
+	}
 	 
 	 
 } 
